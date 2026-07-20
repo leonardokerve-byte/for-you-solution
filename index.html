@@ -142,9 +142,13 @@ img{max-width:100%;display:block;}
 /* ============ HEADER ============ */
 header{
   position:sticky;top:0;z-index:40;
+  border-bottom:1px solid var(--paper-line);
+}
+header::before{
+  content:'';
+  position:absolute;inset:0;z-index:-1;
   background:color-mix(in srgb, var(--paper) 88%, transparent);
   backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--paper-line);
 }
 .nav{
   display:flex;align-items:center;justify-content:space-between;

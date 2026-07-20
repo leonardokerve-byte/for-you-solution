@@ -38,7 +38,9 @@ Since this is a single monolithic file, prefer targeted edits (Edit tool with un
 
 ## Version control and GitHub sync
 
-This project is tracked in a **private** GitHub repository at `leonardokerve-byte/for-you-solution` (remote `origin`, branch `master`). Authentication uses the GitHub CLI (`gh`), logged in as `leonardokerve-byte`.
+This project is tracked in a **public** GitHub repository at `leonardokerve-byte/for-you-solution` (remote `origin`, branch `master`). It was switched from private to public on 2026-07-19 to enable GitHub Pages. Authentication uses the GitHub CLI (`gh`), logged in as `leonardokerve-byte`. `gh` is installed at `C:\Program Files\GitHub CLI\gh.exe` but is not on PATH in every shell — invoke it by full path if `gh` is not found.
+
+**Because the repo is public, never commit secrets** (FTP/hosting passwords, API tokens, etc.) into any tracked file, including this one.
 
 **After any change to project files (`index.html`, `CLAUDE.md`, etc.), commit and push automatically — do not wait for the user to ask:**
 
@@ -49,3 +51,18 @@ This project is tracked in a **private** GitHub repository at `leonardokerve-byt
 A `post-commit` git hook (`.git/hooks/post-commit`) also pushes automatically as a safety net in case a commit is made without an explicit push step. This hook is local-only (not tracked by git) — if the repo is ever re-cloned, recreate it or push manually.
 
 `.claude/settings.local.json` is machine-local Claude Code configuration and is gitignored — it should never be committed.
+
+## Production hosting (live site)
+
+The live production site is served from the user's own domain and paid hosting, **not** from GitHub. The canonical URL is:
+
+- https://www.4yousolution.com.br/ and https://4yousolution.com.br/ (both resolve, both serve the same file; HTTP redirects to HTTPS)
+
+Setup details:
+
+- **Domain**: `4yousolution.com.br`, registered at Registro.br. DNS (nameservers `nebula.dns-parking.com` / `aurora.dns-parking.com`) already points the apex and `www` A records at the Hostinger IP `89.116.115.190` — no DNS changes are needed for routine deploys.
+- **Hosting**: Hostinger, account `u500873686`. Web root is `/domains/4yousolution.com.br/public_html/` on the FTP server at `89.116.115.190:21`.
+- **Deploy mechanism**: plain FTP upload of `index.html` to that web root (e.g. `curl -T index.html ftp://89.116.115.190:21/domains/4yousolution.com.br/public_html/index.html --user "<user>:<password>"`). **This is a manual/separate step from the GitHub push** — pushing to `origin master` does NOT update the live Hostinger site. After editing `index.html`, re-upload it via FTP if the user wants the production site updated.
+- **Credentials**: FTP host/username/password are not stored in this repo (public repo — never commit them). Get them from the user each session, or from the Hostinger hPanel under Files → FTP Accounts if new ones are needed.
+- **Old WordPress install**: Hostinger had auto-installed a default WordPress at `public_html` before this project was deployed. Rather than deleting it, it was moved (via FTP `RNFR`/`RNTO`, not deleted) into `public_html/_old_wordpress_backup/` on 2026-07-19, so it can be recovered if anything in it turns out to be needed.
+- **GitHub Pages**: also enabled on this repo as a secondary/fallback mirror at `https://leonardokerve-byte.github.io/for-you-solution/`, auto-updating on every push to `master`. The Hostinger domain is the real production URL to give out; Pages is not the canonical site.

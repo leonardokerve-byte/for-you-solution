@@ -336,15 +336,75 @@ header::before{
 }
 .digi-list li .idx{font-family:'Plex Mono',monospace;color:var(--brass);font-size:0.8rem;}
 
-/* ============ CTA / FOOTER ============ */
+/* ============ CTA / CONTACT FORM ============ */
 .cta{
   padding-block:clamp(4rem,8vw,6rem);
   text-align:left;
   border-top:1px solid var(--paper-line);
 }
-.cta-inner{display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;}
-.cta h2{font-size:clamp(2.1rem,4.4vw,3.4rem);max-width:14ch;}
-.cta p{color:var(--ink-2);margin-top:1rem;max-width:42ch;}
+.cta h2{font-size:clamp(2.1rem,4.4vw,3.4rem);max-width:18ch;}
+.cta > .section-head p{color:var(--ink-2);margin-top:1rem;max-width:48ch;}
+
+.contact-picker{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+  margin-top:2.5rem;
+}
+@media (max-width:820px){.contact-picker{grid-template-columns:1fr;}}
+.picker-btn{
+  display:flex;flex-direction:column;align-items:flex-start;gap:0.35rem;
+  width:100%;background:var(--card-bg);border:1px solid var(--paper-line);
+  padding:1.4rem 1.5rem;text-align:left;cursor:pointer;
+  font-family:inherit;color:var(--ink);
+  clip-path:polygon(0 0,100% 0,100% 88%,90% 100%,0 100%);
+  transition:border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.picker-btn:hover{border-color:var(--brass);}
+.picker-btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+.picker-btn[aria-pressed="true"] .picker-desc{color:var(--paper-line);}
+.picker-btn[aria-pressed="true"] .num{color:var(--brass-strong);}
+.picker-btn .num{font-family:'Plex Mono',monospace;font-size:0.75rem;color:var(--brass);letter-spacing:0.1em;}
+.picker-btn .picker-label{
+  font-family:'Big Shoulders','Arial Narrow',sans-serif;font-weight:800;
+  text-transform:uppercase;font-size:1.3rem;line-height:1;
+}
+.picker-btn .picker-desc{font-size:0.85rem;color:var(--ink-2);}
+
+.contact-forms{margin-top:1rem;}
+.form-placeholder{color:var(--ink-soft);font-size:0.95rem;border-top:1px dashed var(--paper-line);padding-top:2rem;margin-top:1.5rem;}
+.contact-form{display:none;border-top:1px solid var(--paper-line);padding-top:2rem;margin-top:1.5rem;}
+.contact-form.active{display:block;}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+@media (max-width:640px){.field-grid{grid-template-columns:1fr;}}
+.field{margin-top:1.25rem;}
+.field-grid .field{margin-top:0;}
+.contact-form > .field:first-child{margin-top:0;}
+.field label,.field .field-label{
+  display:block;font-family:'Plex Mono',monospace;font-size:0.72rem;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:0.5rem;
+}
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="tel"],
+.field select,
+.field textarea{
+  width:100%;background:var(--card-bg);border:1px solid var(--paper-line);
+  padding:0.75rem 0.9rem;font-family:inherit;font-size:0.95rem;color:var(--ink);
+  border-radius:0;appearance:none;-webkit-appearance:none;
+}
+.field select{
+  background-image:linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position:calc(100% - 1.3rem) center, calc(100% - 1rem) center;
+  background-size:6px 6px, 6px 6px;background-repeat:no-repeat;
+}
+.field textarea{resize:vertical;min-height:6rem;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--brass);}
+.check-group,.radio-group{display:flex;flex-wrap:wrap;gap:0.6rem 1.5rem;}
+.check-item,.radio-item{display:flex;align-items:center;gap:0.5rem;font-size:0.9rem;color:var(--ink-2);cursor:pointer;}
+.check-item input,.radio-item input{accent-color:var(--brass);width:16px;height:16px;flex:none;}
+.form-actions{margin-top:1.75rem;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;}
+.form-status{font-size:0.85rem;color:var(--ink-2);max-width:36ch;display:none;}
+.form-status.show{display:block;}
+.form-status a{color:var(--brass-strong);}
 footer{
   border-top:1px solid var(--paper-line);
   padding-block:2.5rem;
@@ -534,14 +594,239 @@ footer{
 
   <!-- CTA -->
   <section id="contato" class="cta wrap reveal">
-    <div class="cta-inner">
-      <h2>Vamos conectar o seu negócio?</h2>
-      <div>
-        <p>Conte pra gente qual frente da For You Solution faz sentido para o seu momento — Telecom, Sistemas ou Digital.</p>
-        <div class="hero-ctas" style="margin-top:1.5rem;">
-          <a class="btn btn-primary" href="mailto:contato@foryousolution.com.br">contato@foryousolution.com.br</a>
+    <div class="section-head">
+      <p class="eyebrow">Vamos conversar</p>
+      <h2>Qual frente faz sentido<br>para o seu momento?</h2>
+      <p>Escolha uma opção abaixo — o formulário se ajusta ao que você precisa contar pra gente.</p>
+    </div>
+
+    <div class="contact-picker" id="contactPicker">
+      <button type="button" class="picker-btn" data-target="form-telecom" aria-pressed="false">
+        <span class="num">01</span>
+        <span class="picker-label">Telecom</span>
+        <span class="picker-desc">Instalação, manutenção e conectividade</span>
+      </button>
+      <button type="button" class="picker-btn" data-target="form-sistemas" aria-pressed="false">
+        <span class="num">02</span>
+        <span class="picker-label">Sistemas</span>
+        <span class="picker-desc">Software sob medida para sua operação</span>
+      </button>
+      <button type="button" class="picker-btn" data-target="form-digital" aria-pressed="false">
+        <span class="num">03</span>
+        <span class="picker-label">Digital</span>
+        <span class="picker-desc">Performance, presença e estratégia</span>
+      </button>
+    </div>
+
+    <div class="contact-forms">
+      <p class="form-placeholder" id="formPlaceholder">Selecione uma das opções acima para abrir o formulário.</p>
+
+      <!-- TELECOM FORM -->
+      <form class="contact-form" id="form-telecom" data-form="Telecom" novalidate>
+        <div class="field-grid">
+          <div class="field">
+            <label for="tc-nome">Nome completo</label>
+            <input type="text" id="tc-nome" name="nome" required>
+          </div>
+          <div class="field">
+            <label for="tc-empresa">Empresa / instituição</label>
+            <input type="text" id="tc-empresa" name="empresa">
+          </div>
         </div>
-      </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="tc-email">E-mail</label>
+            <input type="email" id="tc-email" name="email" required>
+          </div>
+          <div class="field">
+            <label for="tc-whatsapp">WhatsApp</label>
+            <input type="tel" id="tc-whatsapp" name="whatsapp">
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="tc-tipo">Tipo de projeto</label>
+            <select id="tc-tipo" name="tipo_projeto" required>
+              <option value="" selected disabled>Selecione</option>
+              <option>Instalação de nova rede</option>
+              <option>Manutenção de rede existente</option>
+              <option>Conectividade para escolas / projeto público</option>
+              <option>Expansão para operadora / distribuidor</option>
+              <option>Outro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tc-regiao">Cidade / região de atuação</label>
+            <input type="text" id="tc-regiao" name="regiao">
+          </div>
+        </div>
+        <div class="field">
+          <label for="tc-prazo">Prazo desejado</label>
+          <select id="tc-prazo" name="prazo">
+            <option value="" selected disabled>Selecione</option>
+            <option>Urgente (até 15 dias)</option>
+            <option>1 a 3 meses</option>
+            <option>3 a 6 meses</option>
+            <option>Ainda em planejamento</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="tc-detalhes">Detalhes do projeto</label>
+          <textarea id="tc-detalhes" name="detalhes" placeholder="Quantos pontos, prédios ou antenas envolve o projeto? Conte o essencial."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Enviar solicitação</button>
+          <p class="form-status">Recebido — em breve o envio será conectado por aqui. Por enquanto, escreva também para <a href="mailto:contato@foryousolution.com.br">contato@foryousolution.com.br</a>.</p>
+        </div>
+      </form>
+
+      <!-- SISTEMAS FORM -->
+      <form class="contact-form" id="form-sistemas" data-form="Sistemas" novalidate>
+        <div class="field-grid">
+          <div class="field">
+            <label for="ss-nome">Nome completo</label>
+            <input type="text" id="ss-nome" name="nome" required>
+          </div>
+          <div class="field">
+            <label for="ss-empresa">Empresa</label>
+            <input type="text" id="ss-empresa" name="empresa" required>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="ss-email">E-mail</label>
+            <input type="email" id="ss-email" name="email" required>
+          </div>
+          <div class="field">
+            <label for="ss-whatsapp">WhatsApp</label>
+            <input type="tel" id="ss-whatsapp" name="whatsapp">
+          </div>
+        </div>
+        <div class="field">
+          <label for="ss-segmento">Segmento do seu negócio</label>
+          <select id="ss-segmento" name="segmento">
+            <option value="" selected disabled>Selecione</option>
+            <option>Operadora de Telecom</option>
+            <option>Clínica veterinária</option>
+            <option>Academia em pré-inauguração</option>
+            <option>Outro segmento</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="field-label">O que você precisa no sistema?</span>
+          <div class="check-group">
+            <label class="check-item"><input type="checkbox" name="necessidades" value="Controle financeiro">Controle financeiro</label>
+            <label class="check-item"><input type="checkbox" name="necessidades" value="Agendamentos">Agendamentos</label>
+            <label class="check-item"><input type="checkbox" name="necessidades" value="Gestão de clientes">Gestão de clientes</label>
+            <label class="check-item"><input type="checkbox" name="necessidades" value="Ordens de serviço">Ordens de serviço</label>
+            <label class="check-item"><input type="checkbox" name="necessidades" value="Relatórios e indicadores">Relatórios e indicadores</label>
+            <label class="check-item"><input type="checkbox" name="necessidades" value="Integração com outros sistemas">Integração com outros sistemas</label>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="ss-investimento">Quanto está disposto a investir por mês?</label>
+            <select id="ss-investimento" name="investimento" required>
+              <option value="" selected disabled>Selecione</option>
+              <option>Até R$ 300/mês</option>
+              <option>R$ 300 a R$ 800/mês</option>
+              <option>R$ 800 a R$ 2.000/mês</option>
+              <option>Acima de R$ 2.000/mês</option>
+              <option>Prefiro conversar primeiro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="ss-prazo">Prazo para começar</label>
+            <select id="ss-prazo" name="prazo">
+              <option value="" selected disabled>Selecione</option>
+              <option>Imediato</option>
+              <option>Próximos 30 dias</option>
+              <option>Ainda pesquisando</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="ss-detalhes">Conte mais sobre o que você precisa</label>
+          <textarea id="ss-detalhes" name="detalhes" placeholder="Como é sua operação hoje? O que mais te trava?"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Enviar solicitação</button>
+          <p class="form-status">Recebido — em breve o envio será conectado por aqui. Por enquanto, escreva também para <a href="mailto:contato@foryousolution.com.br">contato@foryousolution.com.br</a>.</p>
+        </div>
+      </form>
+
+      <!-- DIGITAL FORM -->
+      <form class="contact-form" id="form-digital" data-form="Digital" novalidate>
+        <div class="field-grid">
+          <div class="field">
+            <label for="dg-nome">Nome completo</label>
+            <input type="text" id="dg-nome" name="nome" required>
+          </div>
+          <div class="field">
+            <label for="dg-empresa">Empresa</label>
+            <input type="text" id="dg-empresa" name="empresa" required>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="dg-email">E-mail</label>
+            <input type="email" id="dg-email" name="email" required>
+          </div>
+          <div class="field">
+            <label for="dg-whatsapp">WhatsApp</label>
+            <input type="tel" id="dg-whatsapp" name="whatsapp">
+          </div>
+        </div>
+        <div class="field">
+          <label for="dg-faturamento">Faturamento mensal da empresa</label>
+          <select id="dg-faturamento" name="faturamento" required>
+            <option value="" selected disabled>Selecione</option>
+            <option>Até R$ 10 mil</option>
+            <option>R$ 10 mil a R$ 50 mil</option>
+            <option>R$ 50 mil a R$ 100 mil</option>
+            <option>R$ 100 mil a R$ 300 mil</option>
+            <option>Acima de R$ 300 mil</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="field-label">Serviços de interesse</span>
+          <div class="check-group">
+            <label class="check-item"><input type="checkbox" name="servicos" value="Tráfego pago">Tráfego pago</label>
+            <label class="check-item"><input type="checkbox" name="servicos" value="Social media">Social media</label>
+            <label class="check-item"><input type="checkbox" name="servicos" value="Estrategista digital">Estrategista digital</label>
+            <label class="check-item"><input type="checkbox" name="servicos" value="Influenciadores">Influenciadores</label>
+            <label class="check-item"><input type="checkbox" name="servicos" value="Inaugurações e eventos">Inaugurações e eventos</label>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <span class="field-label">Já investe em marketing hoje?</span>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="ja_investe" value="Sim">Sim</label>
+              <label class="radio-item"><input type="radio" name="ja_investe" value="Não">Não</label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="dg-objetivo">Principal objetivo</label>
+            <select id="dg-objetivo" name="objetivo">
+              <option value="" selected disabled>Selecione</option>
+              <option>Aumentar vendas</option>
+              <option>Aumentar reconhecimento de marca</option>
+              <option>Lançar produto / campanha</option>
+              <option>Melhorar presença online</option>
+              <option>Outro</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="dg-detalhes">Conte mais sobre sua empresa</label>
+          <textarea id="dg-detalhes" name="detalhes" placeholder="O que sua marca vende e para quem?"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Enviar solicitação</button>
+          <p class="form-status">Recebido — em breve o envio será conectado por aqui. Por enquanto, escreva também para <a href="mailto:contato@foryousolution.com.br">contato@foryousolution.com.br</a>.</p>
+        </div>
+      </form>
     </div>
   </section>
 
@@ -588,6 +873,34 @@ footer{
   } else {
     document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
   }
+
+  // Contact picker: swaps between the Telecom / Sistemas / Digital forms
+  var picker = document.getElementById('contactPicker');
+  var placeholder = document.getElementById('formPlaceholder');
+  var forms = document.querySelectorAll('.contact-form');
+  if (picker){
+    var pickerBtns = picker.querySelectorAll('.picker-btn');
+    pickerBtns.forEach(function(pbtn){
+      pbtn.addEventListener('click', function(){
+        pickerBtns.forEach(function(b){ b.setAttribute('aria-pressed', 'false'); });
+        pbtn.setAttribute('aria-pressed', 'true');
+        forms.forEach(function(f){ f.classList.remove('active'); });
+        var target = document.getElementById(pbtn.getAttribute('data-target'));
+        if (target){
+          target.classList.add('active');
+          if (placeholder) placeholder.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  forms.forEach(function(form){
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var status = form.querySelector('.form-status');
+      if (status) status.classList.add('show');
+    });
+  });
 })();
 </script>
 

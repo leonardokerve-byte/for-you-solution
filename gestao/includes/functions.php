@@ -33,16 +33,17 @@ function csrf_verify(): void
 }
 
 /**
- * Saldo atual de kits na distribuidora: entradas - saídas para técnicos.
+ * Saldo atual de kits de um distribuidor específico: entradas - saídas para técnicos.
  */
-function distributor_stock_balance(PDO $pdo): int
+function distributor_stock_balance(PDO $pdo, int $distributorId): int
 {
-    $stmt = $pdo->query(
+    $stmt = $pdo->prepare(
         "SELECT
             COALESCE(SUM(CASE WHEN type = 'entrada_distribuidora' THEN quantity ELSE 0 END), 0)
             - COALESCE(SUM(CASE WHEN type = 'saida_para_tecnico' THEN quantity ELSE 0 END), 0) AS balance
-         FROM stock_movements"
+         FROM stock_movements WHERE distributor_id = ?"
     );
+    $stmt->execute([$distributorId]);
     return (int) $stmt->fetchColumn();
 }
 

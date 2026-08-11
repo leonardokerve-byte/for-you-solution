@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $action = $_POST['action'] ?? '';
 
-    if ($action === 'create') {
+    if ($action === 'create' || $action === 'update') {
         $type = $_POST['type'] === 'receita' ? 'receita' : 'despesa';
         $categoryId = (int) ($_POST['category_id'] ?? 0);
         $description = trim($_POST['description'] ?? '');
@@ -22,23 +22,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($description === '' || $amount <= 0 || $categoryId <= 0) {
             $error = 'Preencha descrição, categoria e um valor válido.';
-        } else {
+        } elseif ($action === 'create') {
             $stmt = $pdo->prepare(
                 'INSERT INTO finance_entries (type, category_id, description, amount, due_date, pix_ref, created_by)
                  VALUES (?, ?, ?, ?, ?, ?, ?)'
             );
             $stmt->execute([$type, $categoryId, $description, $amount, $dueDate, $pixRef, $user['id']]);
             $success = 'Lançamento criado.';
+        } else {
+            $id = (int) ($_POST['id'] ?? 0);
+            $stmt = $pdo->prepare(
+                'UPDATE finance_entries SET type = ?, category_id = ?, description = ?, amount = ?, due_date = ?, pix_ref = ? WHERE id = ?'
+            );
+            $stmt->execute([$type, $categoryId, $description, $amount, $dueDate, $pixRef, $id]);
+            header('Location: financeiro.php');
+            exit;
         }
     } elseif ($action === 'mark_paid') {
         $id = (int) ($_POST['id'] ?? 0);
         $stmt = $pdo->prepare("UPDATE finance_entries SET status = 'pago', paid_date = CURDATE() WHERE id = ?");
         $stmt->execute([$id]);
         $success = 'Lançamento marcado como pago.';
+    } elseif ($action === 'delete') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $pdo->prepare('DELETE FROM finance_entries WHERE id = ?')->execute([$id]);
+        header('Location: financeiro.php');
+        exit;
     }
 }
 
 $categories = $pdo->query('SELECT id, name, kind FROM finance_categories ORDER BY kind, name')->fetchAll();
+
+$editing = null;
+if (isset($_GET['edit'])) {
+    $stmt = $pdo->prepare('SELECT * FROM finance_entries WHERE id = ?');
+    $stmt->execute([(int) $_GET['edit']]);
+    $editing = $stmt->fetch() ?: null;
+}
 
 $filterType = $_GET['tipo'] ?? 'todos';
 $filterStatus = $_GET['status'] ?? 'todos';
@@ -80,37 +100,39 @@ require __DIR__ . '/includes/header.php';
 <?php if ($success): ?><p class="alert alert-success"><?= h($success) ?></p><?php endif; ?>
 
 <section class="panel">
-  <h2>Novo lançamento</h2>
+  <h2><?= $editing ? 'Editar lançamento' : 'Novo lançamento' ?></h2>
   <form method="post" class="form-grid">
     <?= csrf_field() ?>
-    <input type="hidden" name="action" value="create">
+    <input type="hidden" name="action" value="<?= $editing ? 'update' : 'create' ?>">
+    <?php if ($editing): ?><input type="hidden" name="id" value="<?= $editing['id'] ?>"><?php endif; ?>
     <label>Tipo
       <select name="type" required>
-        <option value="despesa">Despesa (a pagar)</option>
-        <option value="receita">Receita (a receber)</option>
+        <option value="despesa" <?= ($editing['type'] ?? '') === 'despesa' ? 'selected' : '' ?>>Despesa (a pagar)</option>
+        <option value="receita" <?= ($editing['type'] ?? '') === 'receita' ? 'selected' : '' ?>>Receita (a receber)</option>
       </select>
     </label>
     <label>Categoria
       <select name="category_id" required>
         <option value="">Selecione</option>
         <?php foreach ($categories as $cat): ?>
-          <option value="<?= $cat['id'] ?>" data-kind="<?= h($cat['kind']) ?>"><?= h($cat['name']) ?> (<?= $cat['kind'] === 'receita' ? 'receita' : 'despesa' ?>)</option>
+          <option value="<?= $cat['id'] ?>" data-kind="<?= h($cat['kind']) ?>" <?= isset($editing['category_id']) && (int) $editing['category_id'] === (int) $cat['id'] ? 'selected' : '' ?>><?= h($cat['name']) ?> (<?= $cat['kind'] === 'receita' ? 'receita' : 'despesa' ?>)</option>
         <?php endforeach; ?>
       </select>
     </label>
     <label>Descrição
-      <input type="text" name="description" required maxlength="255">
+      <input type="text" name="description" required maxlength="255" value="<?= h($editing['description'] ?? '') ?>">
     </label>
     <label>Valor (R$)
-      <input type="text" name="amount" required inputmode="decimal" placeholder="0,00">
+      <input type="text" name="amount" required inputmode="decimal" placeholder="0,00" value="<?= h($editing['amount'] ?? '') ?>">
     </label>
     <label>Vencimento
-      <input type="date" name="due_date">
+      <input type="date" name="due_date" value="<?= h($editing['due_date'] ?? '') ?>">
     </label>
     <label>Referência PIX <span class="optional">(opcional)</span>
-      <input type="text" name="pix_ref" maxlength="190">
+      <input type="text" name="pix_ref" maxlength="190" value="<?= h($editing['pix_ref'] ?? '') ?>">
     </label>
-    <button type="submit" class="btn-primary">Adicionar</button>
+    <button type="submit" class="btn-primary"><?= $editing ? 'Salvar alterações' : 'Adicionar' ?></button>
+    <?php if ($editing): ?><a href="financeiro.php" class="btn-small">Cancelar edição</a><?php endif; ?>
   </form>
 </section>
 
@@ -160,7 +182,15 @@ require __DIR__ . '/includes/header.php';
             <?php endif; ?>
           </td>
           <td><?= h($entry['pix_ref'] ?? '—') ?></td>
-          <td></td>
+          <td>
+            <a href="financeiro.php?edit=<?= $entry['id'] ?>" class="btn-small">Editar</a>
+            <form method="post" class="inline-form" data-confirm="Remover este lançamento? Essa ação não pode ser desfeita.">
+              <?= csrf_field() ?>
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value="<?= $entry['id'] ?>">
+              <button type="submit" class="btn-small">Remover</button>
+            </form>
+          </td>
         </tr>
       <?php endforeach; ?>
       <?php if (!$entries): ?>

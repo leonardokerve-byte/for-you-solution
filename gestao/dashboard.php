@@ -56,7 +56,14 @@ $labels = array_keys($series);
 $receitaSeries = array_map(fn($v) => $v['receita'], $series);
 $despesaSeries = array_map(fn($v) => $v['despesa'], $series);
 
-$stockBalance = distributor_stock_balance($pdo);
+$distributors = $pdo->query('SELECT id, name FROM distributors WHERE active = 1 ORDER BY name')->fetchAll();
+$lowStockDistributors = [];
+foreach ($distributors as $d) {
+    $balance = distributor_stock_balance($pdo, (int) $d['id']);
+    if ($balance < 300) {
+        $lowStockDistributors[] = ['name' => $d['name'], 'balance' => $balance];
+    }
+}
 
 $periodLabels = ['diario' => 'Hoje', '7dias' => 'Últimos 7 dias', 'mensal' => 'Este mês', 'total' => 'Total (tudo)'];
 
@@ -65,9 +72,9 @@ $activePage = 'dashboard';
 require __DIR__ . '/includes/header.php';
 ?>
 
-<?php if ($stockBalance < 300): ?>
-<p class="alert alert-warning">Atenção: saldo de kits na distribuidora está em <strong><?= $stockBalance ?></strong> unidades (abaixo de 300). <a href="estoque.php">Ver estoque</a>.</p>
-<?php endif; ?>
+<?php foreach ($lowStockDistributors as $ld): ?>
+<p class="alert alert-warning">Atenção: saldo de kits em <strong><?= h($ld['name']) ?></strong> está em <strong><?= $ld['balance'] ?></strong> unidades (abaixo de 300). <a href="estoque.php">Ver estoque</a>.</p>
+<?php endforeach; ?>
 
 <nav class="period-tabs">
   <?php foreach ($periodLabels as $key => $label): ?>

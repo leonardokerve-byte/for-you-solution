@@ -24,7 +24,7 @@ $activePage = $activePage ?? '';
     <a href="estoque.php" class="<?= $activePage === 'estoque' ? 'active' : '' ?>">Estoque</a>
     <a href="tecnicos.php" class="<?= $activePage === 'tecnicos' ? 'active' : '' ?>">Técnicos</a>
     <a href="execucoes.php" class="<?= $activePage === 'execucoes' ? 'active' : '' ?>">Execuções</a>
-    <a href="impostos.php" class="<?= $activePage === 'impostos' ? 'active' : '' ?>">Impostos</a>
+    <a href="faturamento.php" class="<?= $activePage === 'faturamento' ? 'active' : '' ?>">Faturamento</a>
   </nav>
   <div class="topbar-user">
     <span><?= h($user['name']) ?></span>

@@ -1,5 +1,6 @@
 -- Schema do Sistema de Gestão - For You Solution
 -- Rode este arquivo uma vez no phpMyAdmin (hPanel da Hostinger), no banco criado para o sistema.
+-- Se o banco já existe com dados, use migration_002_distribuidores_e_faturamento.sql em vez deste.
 
 SET NAMES utf8mb4;
 
@@ -46,23 +47,37 @@ CREATE TABLE IF NOT EXISTS finance_entries (
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS distributors (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO distributors (name) VALUES ('Distribuidor 1'), ('Distribuidor 2');
+
 CREATE TABLE IF NOT EXISTS technicians (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   phone VARCHAR(30) NULL,
   city VARCHAR(120) NULL,
+  distributor_id INT UNSIGNED NULL,
   active TINYINT(1) NOT NULL DEFAULT 1,
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (distributor_id) REFERENCES distributors(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS stock_movements (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   type ENUM('entrada_distribuidora','saida_para_tecnico') NOT NULL,
+  distributor_id INT UNSIGNED NULL,
+  reason VARCHAR(60) NULL,
   technician_id INT UNSIGNED NULL,
   quantity INT NOT NULL,
   note VARCHAR(255) NULL,
   created_by INT UNSIGNED NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (distributor_id) REFERENCES distributors(id),
   FOREIGN KEY (technician_id) REFERENCES technicians(id),
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -97,9 +112,14 @@ CREATE TABLE IF NOT EXISTS tax_calculations (
   tax_percent DECIMAL(5,2) NOT NULL DEFAULT 15.00,
   tax_amount DECIMAL(12,2) NOT NULL,
   net_amount DECIMAL(12,2) NOT NULL,
+  labor_cost DECIMAL(12,2) NULL,
+  labor_technician_id INT UNSIGNED NULL,
   finance_entry_id INT UNSIGNED NULL,
+  labor_finance_entry_id INT UNSIGNED NULL,
   created_by INT UNSIGNED NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (labor_technician_id) REFERENCES technicians(id),
   FOREIGN KEY (finance_entry_id) REFERENCES finance_entries(id) ON DELETE SET NULL,
+  FOREIGN KEY (labor_finance_entry_id) REFERENCES finance_entries(id) ON DELETE SET NULL,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

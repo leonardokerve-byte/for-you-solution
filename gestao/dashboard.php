@@ -95,7 +95,7 @@ require __DIR__ . '/includes/header.php';
   <canvas id="dashboardChart" height="90"></canvas>
 </section>
 
-<script src="assets/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 new Chart(document.getElementById('dashboardChart'), {
   type: 'bar',

@@ -18,7 +18,12 @@ function gestao_db(): PDO
     }
 
     $config = gestao_config();
-    $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $config['db_host'], $config['db_name']);
+    $host = $config['db_host'];
+    $port = $config['db_port'] ?? 3306;
+    if (str_contains($host, ':')) {
+        [$host, $port] = explode(':', $host, 2);
+    }
+    $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $config['db_name']);
 
     $pdo = new PDO($dsn, $config['db_user'], $config['db_pass'], [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

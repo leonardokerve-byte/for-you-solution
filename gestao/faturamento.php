@@ -203,6 +203,7 @@ require __DIR__ . '/includes/header.php';
     <button type="submit" class="btn-primary"><?= $editing ? 'Salvar alterações' : 'Calcular e lançar' ?></button>
     <?php if ($editing): ?><a href="faturamento.php" class="btn-small">Cancelar edição</a><?php endif; ?>
   </form>
+  <p class="hint">O custo de mão de obra é lançado automaticamente como despesa no Financeiro (categoria "Mão de obra") e já entra no cálculo de Custos/Lucro líquido do Dashboard.</p>
 
   <?php if ($result): ?>
     <div class="result-box">
@@ -211,6 +212,7 @@ require __DIR__ . '/includes/header.php';
       <p>Valor líquido lançado como receita: <strong><?= money($result['netAmount']) ?></strong></p>
       <?php if ($result['laborCost'] > 0): ?>
         <p>Custo de mão de obra lançado como despesa: <strong><?= money($result['laborCost']) ?></strong></p>
+        <p>Resultado líquido desta operação (receita − mão de obra): <strong><?= money($result['netAmount'] - $result['laborCost']) ?></strong></p>
       <?php endif; ?>
     </div>
   <?php endif; ?>
@@ -219,9 +221,10 @@ require __DIR__ . '/includes/header.php';
 <section class="panel">
   <h2>Histórico</h2>
   <table class="data-table">
-    <thead><tr><th>Data</th><th>Descrição</th><th>Bruto</th><th>%</th><th>Imposto</th><th>Líquido</th><th>Mão de obra</th><th>Por</th><th></th></tr></thead>
+    <thead><tr><th>Data</th><th>Descrição</th><th>Bruto</th><th>%</th><th>Imposto</th><th>Líquido</th><th>Mão de obra</th><th>Resultado</th><th>Por</th><th></th></tr></thead>
     <tbody>
       <?php foreach ($history as $t): ?>
+        <?php $resultado = (float) $t['net_amount'] - (float) ($t['labor_cost'] ?? 0); ?>
         <tr>
           <td><?= h(date('d/m/Y', strtotime($t['created_at']))) ?></td>
           <td><?= h($t['description']) ?></td>
@@ -230,6 +233,7 @@ require __DIR__ . '/includes/header.php';
           <td><?= money((float) $t['tax_amount']) ?></td>
           <td><?= money((float) $t['net_amount']) ?></td>
           <td><?= $t['labor_cost'] ? money((float) $t['labor_cost']) . ' — ' . h($t['labor_technician_name']) : '—' ?></td>
+          <td><strong><?= money($resultado) ?></strong></td>
           <td><?= h($t['created_by_name'] ?? '—') ?></td>
           <td>
             <a href="faturamento.php?edit=<?= $t['id'] ?>" class="btn-small">Editar</a>
@@ -242,7 +246,7 @@ require __DIR__ . '/includes/header.php';
           </td>
         </tr>
       <?php endforeach; ?>
-      <?php if (!$history): ?><tr><td colspan="9" class="empty">Nenhum lançamento registrado ainda.</td></tr><?php endif; ?>
+      <?php if (!$history): ?><tr><td colspan="10" class="empty">Nenhum lançamento registrado ainda.</td></tr><?php endif; ?>
     </tbody>
   </table>
 </section>

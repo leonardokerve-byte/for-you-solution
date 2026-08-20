@@ -74,33 +74,37 @@ function xlsx_read_rows(string $path): array
 
 /**
  * Lê o .xlsx e devolve as linhas como arrays associativos usando a primeira linha como cabeçalho
- * (nomes de coluna normalizados: minúsculo, sem acento, sem espaço nas pontas).
+ * (chave normalizada: minúsculo, sem acento, sem espaço nas pontas).
  *
- * @return array<int, array<string, string>>
+ * @return array{headers: array<string, string>, rows: array<int, array<string, string>>}
+ *   "headers" mapeia chave normalizada => rótulo original da coluna (para exibir no mapeamento).
  */
 function xlsx_read_table(string $path): array
 {
     $rows = xlsx_read_rows($path);
     if (empty($rows)) {
-        return [];
+        return ['headers' => [], 'rows' => []];
     }
 
     $headerRow = array_shift($rows);
     $headers = [];
+    $colToKey = [];
     foreach ($headerRow as $colIndex => $label) {
-        $headers[$colIndex] = normalize_header($label);
+        $key = normalize_header($label);
+        $headers[$key] = trim($label);
+        $colToKey[$colIndex] = $key;
     }
 
     $table = [];
     foreach ($rows as $row) {
         $record = [];
-        foreach ($headers as $colIndex => $header) {
-            $record[$header] = trim($row[$colIndex] ?? '');
+        foreach ($colToKey as $colIndex => $key) {
+            $record[$key] = trim($row[$colIndex] ?? '');
         }
         $table[] = $record;
     }
 
-    return $table;
+    return ['headers' => $headers, 'rows' => $table];
 }
 
 function normalize_header(string $label): string

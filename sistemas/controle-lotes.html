@@ -1,7 +1,4 @@
 <title>Controle de Lotes MegaInfra</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 :root{
   --bg:#F4F6F3; --surface:#FFFFFF; --surface-2:#EEF1EC; --line:#DCE1D9; --line-2:#C9D0C5;
@@ -14,8 +11,8 @@
   --agd:#0F7C8C; --agd-bg:#DBF0F2;
   --can:#B8433A; --can-bg:#F8E3E0;
   --shadow:0 1px 2px rgba(22,32,27,.06),0 8px 24px rgba(22,32,27,.06);
-  --font:"Onest",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:var(--font);
   --r:10px;
 }
 @media (prefers-color-scheme: dark){
@@ -44,7 +41,7 @@
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
-.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 h1,h2,h3{margin:0;text-wrap:balance}
 
 /* top bar */

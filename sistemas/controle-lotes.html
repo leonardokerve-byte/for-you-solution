@@ -438,7 +438,7 @@ function shellEscolas(){
   '</div><div class="chips" id="fchips"></div><div class="tbl-wrap" id="tblEsc"></div><div class="count-note" id="escNote"></div>';
 }
 function filteredEscolas(){
-  var q=slug(ui.q).replace(/-/g," ");
+  var q=ui.q.trim()?slug(ui.q).replace(/-/g," "):"";
   return escolasArr().filter(function(e){
     if(ui.status&&e.status!==ui.status)return false;
     if(ui.tec==="__none"&&e.tecnicoId)return false;
